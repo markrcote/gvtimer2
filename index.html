@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GV Timer - German Volume Training</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .set-counter {
+            font-size: 4em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .set-label {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .timer {
+            font-size: 3em;
+            font-weight: bold;
+            color: #764ba2;
+            margin: 20px 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer.active {
+            color: #e74c3c;
+        }
+
+        .completion-message {
+            font-size: 1.5em;
+            color: #27ae60;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 140px;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .complete-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .complete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .complete-btn:active {
+            transform: translateY(0);
+        }
+
+        .complete-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reset-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .set-counter {
+                font-size: 3em;
+            }
+
+            .timer {
+                font-size: 2em;
+            }
+
+            button {
+                font-size: 1em;
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GV Timer</h1>
+        <p class="subtitle">German Volume Training</p>
+        
+        <div class="set-counter" id="setCounter">0</div>
+        <div class="set-label">Sets Completed</div>
+        
+        <div class="timer" id="timer"></div>
+        <div class="completion-message" id="completionMessage"></div>
+        
+        <div class="buttons">
+            <button class="complete-btn" id="completeBtn" onclick="completeSet()">Complete Set</button>
+            <button class="reset-btn" id="resetBtn" onclick="resetTimer()">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        let setCount = 0;
+        let timerInterval = null;
+        let remainingSeconds = 0;
+
+        const setCounterEl = document.getElementById('setCounter');
+        const timerEl = document.getElementById('timer');
+        const completionMessageEl = document.getElementById('completionMessage');
+        const completeBtnEl = document.getElementById('completeBtn');
+
+        function completeSet() {
+            if (setCount >= 10) {
+                return;
+            }
+
+            setCount++;
+            setCounterEl.textContent = setCount;
+
+            if (setCount < 10) {
+                startRestTimer();
+            } else {
+                completionMessageEl.textContent = '🎉 Exercise Complete! 🎉';
+                completeBtnEl.disabled = true;
+            }
+        }
+
+        function startRestTimer() {
+            // Clear any existing timer
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            remainingSeconds = 60;
+            timerEl.classList.add('active');
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                remainingSeconds--;
+                updateTimerDisplay();
+
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    timerEl.classList.remove('active');
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = remainingSeconds % 60;
+            timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function resetTimer() {
+            setCount = 0;
+            remainingSeconds = 0;
+            
+            setCounterEl.textContent = setCount;
+            timerEl.textContent = '';
+            timerEl.classList.remove('active');
+            completionMessageEl.textContent = '';
+            completeBtnEl.disabled = false;
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // Initialize display
+        resetTimer();
+    </script>
+</body>
+</html>
