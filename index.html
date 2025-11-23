@@ -180,6 +180,9 @@
     </div>
 
     <script>
+        const MAX_SETS = 10;
+        const REST_TIME_SECONDS = 60;
+
         let setCount = 0;
         let timerInterval = null;
         let remainingSeconds = 0;
@@ -190,14 +193,14 @@
         const completeBtnEl = document.getElementById('completeBtn');
 
         function completeSet() {
-            if (setCount >= 10) {
+            if (setCount >= MAX_SETS) {
                 return;
             }
 
             setCount++;
             setCounterEl.textContent = setCount;
 
-            if (setCount < 10) {
+            if (setCount < MAX_SETS) {
                 startRestTimer();
             } else {
                 completionMessageEl.textContent = '🎉 Exercise Complete! 🎉';
@@ -211,7 +214,7 @@
                 clearInterval(timerInterval);
             }
 
-            remainingSeconds = 60;
+            remainingSeconds = REST_TIME_SECONDS;
             timerEl.classList.add('active');
             updateTimerDisplay();
 
@@ -249,8 +252,12 @@
             }
         }
 
+        function initialize() {
+            resetTimer();
+        }
+
         // Initialize display
-        resetTimer();
+        initialize();
     </script>
 </body>
 </html>
